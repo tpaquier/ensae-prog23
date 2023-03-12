@@ -125,3 +125,59 @@ def graph_from_file(filename):
             else:
                 raise Exception("Format incorrect")
     return g
+
+
+
+#we detect cycles using the union-find method
+
+#adding an extra edge between node1 and node2 will produce an edge if &only if they have a common parent
+#in this case there will already be a path between them
+
+    def find(self, parent, k):
+        """
+    Recursive function giving
+
+    Args:
+        parent (_type_): _description_
+        k (_type_): _description_
+    """
+        if parent[k]!=k:
+            parent[k]=self.find(parent, parent[k])
+        return parent[k]
+
+
+    def union(self, parent, x, y):
+        parent[y]=x
+        return parent[y]
+
+
+    def Kruskal(self):
+        """
+    Gives the minimum spanning tree (MST) of a graph using Kruskal's algorithm
+    We use the union-find method to detect cycles as suggested in S. Dasgupta et al. (2006)
+    its complexity is now reduced to O(|V|)
+    """
+        MST = []
+    # Step 1: sorting edges in a nondecreasing order of their power
+        self.graph = sorted(self.graph, key=lambda item: item[2])
+        # we create an index p to go through these edges in an increasing order
+        p = 0
+
+    # Creating a list of parents outside the union-find recursive functions
+        parent = []
+        for node in range(self.nodes):
+            parent.append(node)
+        # When our MST in process will have |V|-1 edges, it will be complete
+        e=0
+        while e < self.nodes-1:
+            # we consider the edge with the smallest power each time
+            n1, n2, power = self.graph[p]
+            p = p+1
+            # if adding the edge doesn't create a cycle, we add it to our MST in progress
+            if self.find(parent, n1) != self.find(parent, n2):
+                MST.append([n1, n2, power])
+                e = e+1
+            # and we take into account that nodes 1 and 2 are now connected
+            self.union(parent, n1, n2)
+    
+        return print("this is the minimum spannning tree"), MST
