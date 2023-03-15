@@ -1,4 +1,4 @@
-from graph import Graph, Union_Find, graph_from_file, kruskal, min_power_kruskal_V1, min_power, get_path_with_power, dfs, connected_components, bfs, connected_components_set 
+from graph import Graph, Union_Find, graph_from_file, kruskal, min_power_kruskal_V1# min_power, get_path_with_power, dfs, connected_components, bfs, connected_components_set 
 import os
 import time
 import random
@@ -18,22 +18,12 @@ def performance_estimation_min_power(file, routes):
             break  # Stop reading after 30 lines
         n1, n2 = map(int, line.split()[:2])
         start = time.perf_counter()
-        min_power(g, n1, n2)
+        g.min_power(n1, n2)
         stop = time.perf_counter()
         individual_performances.append(stop - start)
     estimation = sum(individual_performances)
     print("Temps estimé:", nb_paths*(estimation / 30))
 
-    """
-    Estimated times with DFS:
-    network/routes 1
-    network/routes 5
-    network/routes 9
-    """
-    
-g = graph_from_file("/home/onyxia/work/ensae-prog23/input/network.01.in")
-print(min_power(g, 1, 2))
-performance_estimation_min_power("/home/onyxia/work/ensae-prog23/input/network.1.in", "/home/onyxia/work/ensae-prog23/input/routes.1.in")
 
 def performance_estimation_kruskal(file, routes):
     g = graph_from_file(file)
@@ -56,12 +46,3 @@ def performance_estimation_kruskal(file, routes):
     out_route.close()
     estimation = sum(individual_performances)
     print("Temps estimé:", nb_paths*(estimation / 30))
-
-    """
-    Estimated times with a pre-processed graph using Kruskal:
-    network/routes 1
-    network/routes 5
-    network/routes 9
-    """
-
-performance_estimation_kruskal("/home/onyxia/work/ensae-prog23/input/network.2.in", "/home/onyxia/work/ensae-prog23/input/routes.2.in")
