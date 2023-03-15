@@ -73,8 +73,9 @@ class Graph:
         self.list_of_edges.append((node1,node2,power_min))
     
 
+
     def get_path_with_power(self, src, dest, power):
-        ancetres = self.bfs(src, dest, power) #ancetres est encore le dictionnaire qui a comme clé un noeud et comme valeur 
+        ancetres = self.bfs(src, dest, power) #ancetres est encore le dicitonnaire qui a comme clé un noeud et comme valeur 
         #celui par lequel on a pu parvenir à ce noeud.
         parcours = []
         #on crée une liste parcours qui nous donnera le parcours entre les deux noeuds choisis en respectant toujours la puissance 
@@ -218,7 +219,7 @@ class Graph:
 
     def connected_components_set(self):
         return set(map(frozenset, self.connected_components()))
-
+    
 
 def graph_from_file(filename):
     """
@@ -330,13 +331,13 @@ def min_power_kruskal_V1(input_graph, src, dest):
     Gives the path with the minimum power between two given nodes
     A twist to bring complexity down and time performance up:
     - preprocessing with the kruskal algorithm
+    The complexity is then lowered to O(|V|)
     """
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
     #Step n° 2: running min_power on the generated MST
     path, power = min_power(MST, src, dest)
     return path, power
-
 
 
 
@@ -347,6 +348,7 @@ def min_power_kruskal_V2(input_graph, src, dest, power):
     Two twists bring complexity down and time performance up:
     - preprocessing with the kruskal algorithm
     - lowest common ancestor (LCA) search instead of DFS to find paths before power-sorting them
+    This allows to bring complexity down to O(|log(V)|)
     """
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
@@ -392,5 +394,5 @@ def min_power_kruskal_V2(input_graph, src, dest, power):
 
     return path, min_power
 
-
-
+g = graph_from_file("/home/onyxia/work/ensae-prog23/input/network.2.in")
+print(g.min_power(1, 12))
