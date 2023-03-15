@@ -181,9 +181,6 @@ class Graph:
                 power = i[3]
         return power
     
-
-
-
     def min_power(self, src, dest):
         debut = 1
         fin = self.max_power
@@ -258,15 +255,20 @@ def graph_from_file(filename):
 
 
 class Union_Find():
+    """
+    A class for union and find operations for later use
+    Using union&find as attributes proves to be useful to avoid errors (e.g. index problems)
+    """
 
     def __init__(self):
-        self.rank = -1
+        self.subtree_size = -1
         self.parent = -1
 
-    def make_set(self):
-        self.parent = self
-        self.rank = 0
+    def set_up(self):
+        self.subtree_size = 0
+        self.parent = 0
     
+# A find function to get to the set a node belongs to
     def find(self):
         while self != self.parent:
             self = self.parent
@@ -274,17 +276,18 @@ class Union_Find():
 
 # A function that merges two sets of x and y,
 # in this case the sets being connected components of nodes    
-    def union(self, y):
-        root_x = self.find()
-        root_y = y.find()    
-        if root_x == root_y :
+# we filter by subtree size for efficience
+    def union(self, node_2):
+        x = self.find()
+        y = node_2.find()    
+        if x == y :
             return 
-        if root_x.rank > root_y.rank:
-            root_y.parent = root_x
+        if x.subtree_size > y.subtree_size:
+            y.subtree_size = x
         else:
-            root_x.parent = root_y
-            if root_x.rank == root_y.rank:
-                root_y.rank = root_y.rank + 1
+            x.subtree_size = y
+            if x.subtree_size == y.subtree_size:
+                y.subtree_size += 1
 
 
 def kruskal(input_graph):
@@ -309,7 +312,7 @@ def kruskal(input_graph):
     nodes = {}
     for node in input_graph.nodes:
         nodes[node] = Union_Find()
-        nodes[node].make_set()
+        nodes[node].set_up()
     # When our MST in progress will have |V|-1 edges, it will be complete (see above, Q. 11)
     e = 0
     while e < len(input_graph.nodes)-1:
@@ -335,7 +338,7 @@ def min_power_kruskal_V1(input_graph, src, dest):
     """
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
-    #Step n° 2: running min_power on the generated MST
+    #Step n° 2: running the usual min_power on the generated MST
     path, power = min_power(MST, src, dest)
     return path, power
 
@@ -348,51 +351,10 @@ def min_power_kruskal_V2(input_graph, src, dest, power):
     Two twists bring complexity down and time performance up:
     - preprocessing with the kruskal algorithm
     - lowest common ancestor (LCA) search instead of DFS to find paths before power-sorting them
-    This allows to bring complexity down to O(|log(V)|)
+    This shoumd allow to bring complexity down to O(|log(V)|)
     """
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
     # Step n°2: Lowest common ancestor
-    list_of_parents = kruskal.parents
-    ancestors = []
-    #We build the list of all ancestors of the start node
-    current_node = origin
-    while list_of_parents[current_node-1] != current_node:
-        ancestors.append(current_node)
-        current_node = list_of_parents[current_node-1]
-    ancestors.append(current_node)
-    #To find the path, we find the lowest common ancestor of the two nodes.
-    lca = destination
-    while lca not in ancestors:
-        lca = list_of_parents[lca-1]
+   
 
-    #The path is simple : starting node -> lca -> ending node
-    ascending_path  = []
-    descending_path = []
-    current_node = origin
-    while current_node != lca:
-        ascending_path.append(current_node)
-        current_node = list_of_parents[current_node-1]
-    ascending_path.append(lca)
-
-    current_node = destination
-    while current_node != lca:
-        descending_path.append(current_node)
-        current_node = list_of_parents[current_node-1]
-    #Now the path regardless of power is found.
-    #To find the power, we collect all powers in that path, and identify the minimum
-    path = ascending_path + descending_path[::-1]
-    power = input_graph.max_power
-    for index in range(len(path)-1):
-        origin, destination = path[index], path[index+1]
-        destination_index = input_graph.list_of_neighbours[origin-1].index(destination)
-        power = min(power, input_graph.graph[origin][destination_index][1])
-
-    # Step n° 3: Filtering by power to get the lowest
-
-
-
-    return path, min_power
-
-g = graph_from_file("/home/onyxia/work/ensae-prog23/input/network.2.in")
-print(g.min_power(1, 12))
