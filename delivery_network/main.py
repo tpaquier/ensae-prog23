@@ -46,3 +46,4 @@ def performance_estimation_kruskal(file, routes):
     out_route.close()
     estimation = sum(individual_performances)
     print("Temps estimé:", nb_paths*(estimation / 30))
+performance_estimation_kruskal("/home/onyxia/ensae-prog23/input/network.2.in", "/home/onyxia/ensae-prog23/input/routes.2.in")

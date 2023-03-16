@@ -132,7 +132,7 @@ class Graph:
                 gde_liste.append(composantes)
         return gde_liste
         
-    def bfs(self, beg, dest, power=-1):
+    def bfs(self, beg, dest, power=float('inf')):
         ancetres = {}
         #le dictionnaire ancetres est le dicitonnaire qui permet d'avoir le lien entre chaque sommet, c'est-à-dire que la clé est le 
         #sommet en question et sa valeur est le noeud par lequel on est arrivés. 
@@ -180,7 +180,7 @@ class Graph:
             if i[1] == node2:
                 power = i[3]
         return power
-    
+    """
     def min_power(self, src, dest):
         debut = 1
         fin = self.max_power
@@ -213,6 +213,46 @@ class Graph:
         return self.get_path_with_power(src, dest, minus), minus
         #en testant cette fonction sur le network.2 avec comme noeuds 1 et 12, voici le résultat obtenu :
         # ([1, 2, 4, 12], 52761). C'est assez long mais il parvient au résultat sans trop de soucis. 
+    """
+    def min_power(self, src, dest):
+        debut = 1
+        fin = self.max_power
+        actu=self.get_path_with_power(src, dest, self.max_power)
+        if actu is None or dest not in actu:
+            return None, None
+        #si les deux noeuds en question ne sont pas sur un graphe connexe, on retourne none car il n'y a pas de chemins possible. 
+        while debut != fin: 
+            #on fait une recherche binaire. 
+            #Pour être tout à fait honnête, la condition sur le while est un peu désuète étant donné qu'on fait un break
+            #avant que cette condition puisse se remplir mais c'est la solution qui a le mieux marché sur plusieurs tests : 
+            #network.1 et network.2, lentement mais sûrement.
+            mid = ((debut+fin)//2)
+            actu=self.get_path_with_power(src, dest, power=mid)
+            #on actualise à chaque itération le graphe des sommets formant un graphe connexe et permettant un chemin. 
+            if actu is not None and dest in actu:
+                fin = mid
+            #si le sommet qu'on veut atteindre est dans le graphe fait à partir de la médiane des puissances
+            #on redéfinit la "borne sup" comme étant l'ancien milieu pour retrécir notre champ de recherche.
+            else:
+                debut=mid
+            #on procède pareillement mais avec la plus petite puissance dans le cas contraire.
+            if fin-debut == 1 :
+                break
+            #Comme on ne prend pas comme valeurs de power les puissances présentes dans le graphe mais simplement 
+            #les entiers situés entre la plus grande puissance et la plus petite, 
+            #la condition pour sortir de la boucle while est que la différence entre les deux extrêmes soit égale à un. 
+            #Ainsi, cela signifierait que ce sont deux entiers qui se suivent et on doit donc nécessairement prendre 
+            #"fin" car début serait trop petit. 
+        minus=fin
+        return self.get_path_with_power(src, dest, minus), minus
+        #en testant cette fonction sur le network.2 avec comme noeuds 1 et 12, voici le résultat obtenu :
+        # ([1, 2, 4, 12], 52761). C'est assez long mais il parvient au résultat sans trop de soucis. 
+
+
+    
+
+
+
 
     def connected_components_set(self):
         return set(map(frozenset, self.connected_components()))
@@ -221,37 +261,48 @@ class Graph:
 def graph_from_file(filename):
     """
     Reads a text file and returns the graph as an object of the Graph class.
-
     The file should have the following format: 
         The first line of the file is 'n m'
         The next m lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
         The nodes (node1, node2) should be named 1..n
         All values are integers.
-
     Parameters: 
     -----------
     filename: str
         The name of the file
-
     Outputs: 
     -----------
-    g: Graph
+    G: Graph
         An object of the class Graph with the graph from file_name.
     """
-    with open(filename, "r") as file:
-        n, m = map(int, file.readline().split())
-        g = Graph(range(1, n+1))
-        for _ in range(m):
-            edge = list(map(int, file.readline().split()))
-            if len(edge) == 3:
-                node1, node2, power_min = edge
-                g.add_edge(node1, node2, power_min) # will add dist=1 by default
-            elif len(edge) == 4:
-                node1, node2, power_min, dist = edge
-                g.add_edge(node1, node2, power_min, dist)
-            else:
-                raise Exception("Format incorrect")
-    return g
+    #start = time.perf_counter()
+    file = open(filename, 'r')
+    dist=1
+    #First line is read in order to properly intialize our graph
+    line_1 = file.readline().split(' ')
+    total_nodes = int(line_1[0])
+    nb_edges = int(line_1[1].strip('\n'))
+    new_graph = Graph([node for node in range(1,total_nodes+1)])
+    new_graph.nb_edges = nb_edges
+    new_graph.list_of_edges = [None]*nb_edges
+    #Then, all lines are read to create a new edge for each line
+    for line in file:
+        list_line = line.split(' ')
+        start_node = int(list_line[0])
+        end_node = int(list_line[1])
+        power = int(list_line[2])
+        if list_line == []:
+            continue
+        if len(list_line) == 4:
+            #In the case where a distance is included
+            dist = int(list_line[3])
+        new_graph.max_power = max(new_graph.max_power, power)
+        new_graph.add_edge(start_node, end_node, power, dist)
+    new_graph.list_of_neighbours = [list(zip(*new_graph.graph[node]))[0] for node in new_graph.nodes if new_graph.graph[node]!=[]]
+    #stop = time.perf_counter()
+    #print(stop-start)
+    file.close()
+    return new_graph
 
 
 class Union_Find():
