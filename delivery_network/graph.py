@@ -75,7 +75,7 @@ class Graph:
 
 
     def get_path_with_power(self, src, dest, power):
-        ancetres = self.bfs(src, dest, power) #ancetres est encore le dicitonnaire qui a comme clé un noeud et comme valeur 
+        ancetres = self.bfs(src, dest, power) #ancetres est encore le dictionnaire qui a comme clé un noeud et comme valeur 
         #celui par lequel on a pu parvenir à ce noeud.
         parcours = []
         #on crée une liste parcours qui nous donnera le parcours entre les deux noeuds choisis en respectant toujours la puissance 
@@ -132,7 +132,7 @@ class Graph:
                 gde_liste.append(composantes)
         return gde_liste
         
-    def bfs(self, beg, dest, power=float('inf')):
+    def bfs(self, beg, power=float('inf')):
         ancetres = {}
         #le dictionnaire ancetres est le dicitonnaire qui permet d'avoir le lien entre chaque sommet, c'est-à-dire que la clé est le 
         #sommet en question et sa valeur est le noeud par lequel on est arrivés. 
@@ -283,11 +283,9 @@ def graph_from_file(filename):
     total_nodes = int(line_1[0])
     nb_edges = int(line_1[1].strip('\n'))
     new_graph = Graph([node for node in range(1,total_nodes+1)])
-    new_graph.nb_edges = nb_edges
-    new_graph.list_of_edges = [None]*nb_edges
     #Then, all lines are read to create a new edge for each line
     for line in file:
-        list_line = line.split(' ')
+        list_line = line.replace("\n","").split(' ')
         start_node = int(list_line[0])
         end_node = int(list_line[1])
         power = int(list_line[2])
@@ -295,7 +293,7 @@ def graph_from_file(filename):
             continue
         if len(list_line) == 4:
             #In the case where a distance is included
-            dist = int(list_line[3])
+            dist = float(list_line[3])
         new_graph.max_power = max(new_graph.max_power, power)
         new_graph.add_edge(start_node, end_node, power, dist)
     new_graph.list_of_neighbours = [list(zip(*new_graph.graph[node]))[0] for node in new_graph.nodes if new_graph.graph[node]!=[]]
@@ -313,12 +311,7 @@ class Union_Find():
 
     def __init__(self):
         self.subtree_size = -1
-        self.parent = -1
-
-    def set_up(self):
-        self.subtree_size = 0
-        self.parent = 0
-    
+        self.parent = self
 # A find function to get to the set a node belongs to
     def find(self):
         while self != self.parent:
@@ -363,7 +356,7 @@ def kruskal(input_graph):
     nodes = {}
     for node in input_graph.nodes:
         nodes[node] = Union_Find()
-        nodes[node].set_up()
+        #nodes[node].set_up()
     # When our MST in progress will have |V|-1 edges, it will be complete (see above, Q. 11)
     e = 0
     while e < len(input_graph.nodes)-1:
@@ -407,5 +400,39 @@ def min_power_kruskal_V2(input_graph, src, dest, power):
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
     # Step n°2: Lowest common ancestor
-   
 
+
+def vitesse(src, dest, ancetres) :
+    route_src=[]
+    route_dest=[]
+    a=src
+    b=dest
+    if a not in ancetres or b not in ancetres :
+        return None
+    else :
+        while acentres[a]!=a or ancetres[b]!=b :
+            route_src.append(a)
+            route_dest.append(b)
+            a=ancetres[a]
+            b=ancetres[b]
+        route_src.reverse()
+        trajet_total = route_src + route_dest
+        return trajet_total
+
+
+
+
+
+
+    """
+    if n1 or n2 not in min_power_kruskal_V1(input_graph, src, dest):
+        return None 
+    else :
+        continue 
+
+    while (i<len(route1) and i<len(route2)) :
+        if route1[i] != route2[i]:
+            break
+        else : 
+            i+=1
+    """
