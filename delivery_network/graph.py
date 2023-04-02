@@ -132,7 +132,7 @@ class Graph:
                 gde_liste.append(composantes)
         return gde_liste
         
-    def bfs(self, beg, power=float('inf')):
+    def bfs(self, beg, dest, power=float('inf')):
         ancetres = {}
         #le dictionnaire ancetres est le dicitonnaire qui permet d'avoir le lien entre chaque sommet, c'est-à-dire que la clé est le 
         #sommet en question et sa valeur est le noeud par lequel on est arrivés. 
@@ -146,6 +146,8 @@ class Graph:
             #le while est conditionné par la longueur de la queue du fait de l'utilisation de pop. Comme on a une queue on supprime le 
             #dernier élément de cette liste pour chercher les autres sommets. 
             for v in self.graph[n]:
+                #if type(v) is tuple :
+                print(type(v))
                 if v[0] not in visited and power >= v[1]:
                     #on garde la condition dans les visites pour ne pas faire de boucle et on rajoute celle sur la puissance pour coller
                     #aux conditions de base. De la sorte, on considère qu'il n'y a pas d'arêtes si la puissance de celle-ci
@@ -155,7 +157,7 @@ class Graph:
                     ancetres[v[0]] = n
                     #on définit la valeur comme le noeur à partir duquel on est arrivés.
                     visited.add(v[0])
-                    #et on le rajoute au set des visites comme pour éviter les boucles.
+                    #et on le rajoute au set des visites comme pour éviter les boucles.           
         return ancetres
 
 
@@ -312,6 +314,10 @@ class Union_Find():
     def __init__(self):
         self.subtree_size = -1
         self.parent = self
+
+    def set_up(self):
+        self.subtree_size = 0
+    
 # A find function to get to the set a node belongs to
     def find(self):
         while self != self.parent:
@@ -327,9 +333,11 @@ class Union_Find():
         if x == y :
             return 
         if x.subtree_size > y.subtree_size:
-            y.subtree_size = x
+            y.parent = x
+            x.subtree_size += y.subtree_size
         else:
-            x.subtree_size = y
+            x.parent = y
+            y.subtree_size += x.subtree_size
             if x.subtree_size == y.subtree_size:
                 y.subtree_size += 1
 
@@ -344,10 +352,6 @@ def kruskal(input_graph):
     """
     MST = Graph()
     MST.nb_edges = input_graph.nb_nodes - 1
-    """
-    Preuve (Q.11): Un graphe connexe non orienté est un arbre ssi il a |sommets|-1 arêtes
-
-    """
     # Sorting edges in a nondecreasing order of their power: 
     # the spanning tree produced by iteration will then necessarily be a MST
     input_graph.graph = sorted(input_graph.list_of_edges, key=lambda item: item[2])
@@ -356,10 +360,10 @@ def kruskal(input_graph):
     nodes = {}
     for node in input_graph.nodes:
         nodes[node] = Union_Find()
-        #nodes[node].set_up()
+        nodes[node].set_up()
     # When our MST in progress will have |V|-1 edges, it will be complete (see above, Q. 11)
     e = 0
-    while e < len(input_graph.nodes)-1:
+    while e < len(input_graph.nodes)-1 and p < len(input_graph.graph):
         # we consider the edge with the smallest power each time
         n1, n2, power = input_graph.graph[p]
         p = p+1
@@ -370,6 +374,7 @@ def kruskal(input_graph):
             # and we take into account that the nodes are now connected
             nodes[n1].union(nodes[n2])
     return MST
+
 
 
 def min_power_kruskal_V1(input_graph, src, dest):
@@ -383,12 +388,12 @@ def min_power_kruskal_V1(input_graph, src, dest):
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
     #Step n° 2: running the usual min_power on the generated MST
-    path, power = min_power(MST, src, dest)
+    path, power = MST.min_power(src, dest)
     return path, power
 
 
 
-def min_power_kruskal_V2(input_graph, src, dest, power):
+def min_power_kruskal_LCA(input_graph, src, dest, power):
     """
     New version of the min_power function, 
     Gives the path with the minimum power between two given nodes
@@ -400,8 +405,131 @@ def min_power_kruskal_V2(input_graph, src, dest, power):
     # Step n° 1: Preprocessing
     MST = kruskal(input_graph)
     # Step n°2: Lowest common ancestor
+   
+def knapsack(truck_cost, profit, Budget, B, n):
+    path = list_of_paths[n]
+    # the budget will be saturated at some point
+    if Budget - truck_cost < 0:
+        M[n][Budget] = knapsack(truck_cost, profit, Budget, B, n-1)
+        # M[n][Budget] = M[n-1][Budget]
+        return 
+    
+    if (wt[n-1] > W):
+        return knapSack(W, wt, val, n-1)
+ 
+    #Actualize Budget!
+
+    # return the maximum of two cases:
+    # (1) nth path included 
+    # (2) not included
+    else:
+        Budget -= truck_cost
+        M[n][Budget] = max(profit[n-1] + knapsack(Budget, truck_cost, profit, n-1), knapSack(Budget, truck_cost, profit, n-1))
+        #  M[n][Budget] = max(profit[n-1] + M[n-1][Budget-truck_cost[n-1]], M[n-1][budget])
+        return M[n][Budget]
+
+# A lot of optimization to do (space optimization specifically: there is no need for a matrix, could be done with a vector if properly done)
+# + lists/attributes : maybe create new class to initialize ot modify graph
+
+def knapsack(truck_cost, profit, Budget, N):
+    """
+    (Optimized) recursive knapsack method applied to our truck allocation problem
+    Computes all profits associated to all sets of allocations and gives the global maximum
+    For each traject we use our optimal min_power with LCA computed earlier on to find the optimal truck
+    We use dynamic programming to make this algorithm useable
+    Complexity = O(|Number of paths * Budget|)
+    Auxiliary space = O(|Budget|)
+    Later on we will use a greedy version
+    Args:
+        truck_cost (_type_): _description_
+        profit (_type_): _description_
+        Budget (_type_): _description_
+        B (_type_): _description_
+        N (_type_): _description_
+    Rem: this should suffice to actualize budget
+    Problem: intializing truck_cost
+    """
+
+#First version
+    if N==0 or Budget==0:
+        return 0
+    #if the truck is too expensive, we cannot include it
+    if (truck_cost[N-1] > Budget):
+        return knapsack(truck_cost, profit, Budget, B, N-1)
+    #now we compare the profit between including the nth truck or not
+    else:
+        return max(profit(N-1)+ knapsack(truck_cost, profit, Budget-truck_cost(N-1), B, N-1), knapsack(truck_cost, profit, Budget-truck_cost(N-1), B, N-1))
 
 
+
+def knapsack_trucks(graph, routes, trucks):   
+    # reading our file and initializing gain, cost, paths, etc. 
+    g = graph_from_file(filename)
+    Budget = 25*10**9
+    B = 0
+    trucks = open(trucks, "r")
+    nb_trucks = int(paths.readline().strip())
+    for path in routes:
+        gain = path.gain
+        min_power = g.min_power(path)
+    while B <= Budget:
+        """
+    for i, line in enumerate(trucks):
+        if i == 0:
+            continue  # Skip the first line
+        truck_power, cost = map(int, line.split()[:2])
+    # intializing M, or not to get into DP*
+    # running knapsack on our file
+"""
+
+
+    """
+    After that, a greedy and/or local method to bring complexity down
+    The idea being to use knapsack later on to test whether the local max is also global
+    And find ways to make them coincide, but with much lower complexity
+    Gradient descent? convexity? 
+    """
+
+
+    
+"""
+    def greedy_approach(input_graph, routesfile, ):
+    
+    Idea: start by sorting the paths by profit and then go one by one
+    This relies heavily on our min_power_LCA earlier on
+    ***
+    Limits in comparison with a global max : 
+    Possibly the last truck + the leftover budget would have been better spent 
+    by saturating the budget completely on less expensive trucks
+    *** 
+    Improvement ideas: 
+    1° change the notion of profit
+    2° find a way to make agree with global max
+    Complexity = log(N) ?
+    
+       
+        paths_and_trucks = []
+        Budget = 25*10**9
+        #read the file
+        # Step n° 1: create a dict with path, min_power, truck, profit
+        X = {}
+        for n1, n2 in routes:
+            truck with truck_power >= min_power_LCA(input_graph, n1, n2, power)
+            cost(path) = cost(truck(path))
+        # Rem: Our notion of profit is "economical": gains - expenditures
+            profit = gain(path) - cost(path)
+            X.append([path, min_power, truck, profit]) #find a better way than append to reduce time? new class? 
+        # Step n° 2: sort by profit (descending)
+        g.profit = sorted(X, key= lambda, item: item[profit], reverse = True)
+        # Step n° 3: saturate budget
+        while Budget > 0:
+            for i in range(len(g.profit)):
+                while Budget - cost > 0
+                paths_and_trucks.append()
+                Budget = Budget - cost()
+        # We now have a list of trucks and associated paths, sorted by profit
+        return paths_and_trucks
+"""
 def vitesse(src, dest, ancetres) :
     route_src=[]
     route_dest=[]
@@ -410,7 +538,7 @@ def vitesse(src, dest, ancetres) :
     if a not in ancetres or b not in ancetres :
         return None
     else :
-        while acentres[a]!=a or ancetres[b]!=b :
+        while a!=b :
             route_src.append(a)
             route_dest.append(b)
             a=ancetres[a]
