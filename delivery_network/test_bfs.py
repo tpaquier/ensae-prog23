@@ -7,5 +7,5 @@ g = graph_from_file(data_path + file_name)
 gk = kruskal(g)
 ancetres = gk.bfs(1, 10)
 a=vitesse(1, 1200, ancetres)
-b=g.bfs(1, 16)
-print(b)
+
+print(a)

@@ -146,8 +146,6 @@ class Graph:
             #le while est conditionné par la longueur de la queue du fait de l'utilisation de pop. Comme on a une queue on supprime le 
             #dernier élément de cette liste pour chercher les autres sommets. 
             for v in self.graph[n]:
-                #if type(v) is tuple :
-                print(type(v))
                 if v[0] not in visited and power >= v[1]:
                     #on garde la condition dans les visites pour ne pas faire de boucle et on rajoute celle sur la puissance pour coller
                     #aux conditions de base. De la sorte, on considère qu'il n'y a pas d'arêtes si la puissance de celle-ci
