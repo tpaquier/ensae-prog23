@@ -133,8 +133,8 @@ class Graph:
         return gde_liste
         
     def bfs(self, beg, dest, power=float('inf')):
-        ancetres = {}
-        #le dictionnaire ancetres est le dicitonnaire qui permet d'avoir le lien entre chaque sommet, c'est-à-dire que la clé est le 
+        ancetres = dict()
+        #le dictionnaire ancetres est le dictonnaire qui permet d'avoir le lien entre chaque sommet, c'est-à-dire que la clé est le 
         #sommet en question et sa valeur est le noeud par lequel on est arrivés. 
         queue = []
         visited = set()
@@ -144,18 +144,24 @@ class Graph:
         while len(queue) > 0:
             n = queue.pop()
             #le while est conditionné par la longueur de la queue du fait de l'utilisation de pop. Comme on a une queue on supprime le 
-            #dernier élément de cette liste pour chercher les autres sommets. 
+            #dernier élément de cette liste pour chercher les autres sommets.
+            
             for v in self.graph[n]:
-                if v[0] not in visited and power >= v[1]:
+                #print(v)
+                if (type(v)==tuple) is True :
+                    if v[0] not in visited and power >= v[1]:
                     #on garde la condition dans les visites pour ne pas faire de boucle et on rajoute celle sur la puissance pour coller
                     #aux conditions de base. De la sorte, on considère qu'il n'y a pas d'arêtes si la puissance de celle-ci
                     #est supérieure à la puissance donnée comme paramètre. 
-                    queue.append(v[0])
+                        queue.append(v[0])
                     #on rajoute tous les voisins du noeud en question à la liste de queue pour avoir tous les chemins
-                    ancetres[v[0]] = n
+                        ancetres[v[0]] = n
                     #on définit la valeur comme le noeur à partir duquel on est arrivés.
-                    visited.add(v[0])
-                    #et on le rajoute au set des visites comme pour éviter les boucles.           
+                        visited.add(v[0])
+                    #et on le rajoute au set des visites comme pour éviter les boucles.
+                else : 
+                    pass    
+        
         return ancetres
 
 
@@ -563,7 +569,6 @@ def vitesse(src, dest, ancetres) :
                 route_src.append(i)
             else :
                 pass
-        
         route_dest.reverse()
         trajet_total = route_src + route_dest
         return trajet_total
