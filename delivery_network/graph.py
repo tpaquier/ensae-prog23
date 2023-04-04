@@ -533,15 +533,38 @@ def vitesse(src, dest, ancetres) :
     route_dest=[]
     a=src
     b=dest
+    visited_src=set()
+    visited_dest=set()
+    visited_dest.add(b)
+    visited_src.add(a)
     if a not in ancetres or b not in ancetres :
         return None
     else :
-        while a!=b :
-            route_src.append(a)
-            route_dest.append(b)
+        while b not in visited_src or a not in visited_dest : #on doit rajouter cette condition car ce n'est pas un arbre oriente
+            #donc il est possible qu'il fasse des cycles dans ses allers-retours entre noeud d'où il vient et noeud où il va
+            if ancetres[a] in visited_src :
+                pass
+            elif ancetres[b] in visited_dest :
+                pass
+            else :
+                route_src.append(a)
+                route_dest.append(b)
+            visited_src.add(a)
+            visited_dest.add(b)
             a=ancetres[a]
             b=ancetres[b]
-        route_src.reverse()
+        for i in visited_dest :
+            if i not in route_src+route_dest :
+                route_src.append(i)
+            else :
+                pass
+        for i in visited_src :
+            if i not in route_src+route_dest :
+                route_src.append(i)
+            else :
+                pass
+        
+        route_dest.reverse()
         trajet_total = route_src + route_dest
         return trajet_total
 
