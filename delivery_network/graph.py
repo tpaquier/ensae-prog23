@@ -603,8 +603,7 @@ def vitesse(src, dest, ancetres) :
 
 
 def time_perf_min_power(file) :
-    
-    import time 
+    import time
     start=time.time()
     
     road=open(f"input/routes.{file}.in", "r")
