@@ -145,7 +145,6 @@ class Graph:
             n = queue.pop()
             #le while est conditionné par la longueur de la queue du fait de l'utilisation de pop. Comme on a une queue on supprime le 
             #dernier élément de cette liste pour chercher les autres sommets.
-            
             for v in self.graph[n]:
                 #print(v)
                 if (type(v)==tuple) is True :
@@ -160,8 +159,7 @@ class Graph:
                         visited.add(v[0])
                     #et on le rajoute au set des visites comme pour éviter les boucles.
                 else : 
-                    pass    
-        
+                    pass
         return ancetres
 
 
@@ -252,7 +250,8 @@ class Graph:
         minus=fin
         return self.get_path_with_power(src, dest, minus), minus
         #en testant cette fonction sur le network.2 avec comme noeuds 1 et 12, voici le résultat obtenu :
-        # ([1, 2, 4, 12], 52761). C'est assez long mais il parvient au résultat sans trop de soucis. 
+        # ([1, 2, 4, 12], 52761). Effectué en moins de trois secondes.
+        #marche sur network 10 avec comme noeuds : 1 et 153789, trouve la réponse en 17,53 secondes
 
 
     
@@ -572,7 +571,10 @@ def vitesse(src, dest, ancetres) :
         route_dest.reverse()
         trajet_total = route_src + route_dest
         return trajet_total
-
+        #sur network 10, en 7 secondes entre les noeuds : 9 et 14778. 
+        #en comptant le temps de la mise en place du kruskal
+        #en 8 secondes entre 1 et 10000
+        
 
 
 
