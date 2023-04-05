@@ -2,20 +2,21 @@
 from graph import Graph, Union_Find, graph_from_file, kruskal, min_power_kruskal_V1, vitesse
 
 data_path = "input/"
-file_name = "network.00.in"
+file_name = "network.1.in"
 
 g = graph_from_file(data_path + file_name)
-
+print(g.min_power(6, 11))
 
 #b= g.bfs(1,7)
-
+'''
 gk = kruskal(g)
 truc = gk.bfs(1, 100000)
-a=vitesse(9, 10, truc)
-
+print(truc)
+a=vitesse(11, 9, truc)
+'''
 #c=gk.min_power(9,10)
 #d=g.get_path_with_power(1, 7, 500000000)
-print("la réponse finale est : \n", a)
+#print("la réponse finale est : \n", a)
 
 """
 u=[1,2,3,4,5,6,7,8,9]

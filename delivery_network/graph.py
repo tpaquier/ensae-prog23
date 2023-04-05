@@ -142,7 +142,7 @@ class Graph:
         #qu'une fois chaque noeud. 
         queue.append(beg)
         while len(queue) > 0:
-            n = queue.pop()
+            n = int(queue.pop())
             #le while est conditionné par la longueur de la queue du fait de l'utilisation de pop. Comme on a une queue on supprime le 
             #dernier élément de cette liste pour chercher les autres sommets.
             for v in self.graph[n]:
@@ -222,7 +222,6 @@ class Graph:
         debut = 1
         fin = self.max_power
         actu=self.get_path_with_power(src, dest, self.max_power)
-        print("maw power :", self.max_power)
         if actu is None or dest not in actu:
             return None, None
         #si les deux noeuds en question ne sont pas sur un graphe connexe, on retourne none car il n'y a pas de chemins possible. 
@@ -355,7 +354,6 @@ def kruskal(input_graph):
     (This algorithm works adequately on one graph at a time)
     """
     MST = Graph()
-    MST.nb_edges = input_graph.nb_nodes - 1
     # Sorting edges in a nondecreasing order of their power: 
     # the spanning tree produced by iteration will then necessarily be a MST
     input_graph.graph = sorted(input_graph.list_of_edges, key=lambda item: item[2])
@@ -370,6 +368,7 @@ def kruskal(input_graph):
     while e < len(input_graph.nodes)-1 and p < len(input_graph.graph):
         # we consider the edge with the smallest power each time
         n1, n2, power = input_graph.graph[p]
+        MST.max_power = max(power, MST.max_power)
         p = p+1
         # if adding the edge doesn't create a cycle, we add it to our MST in progress
         if nodes[n1].find() != nodes[n2].find():
@@ -539,54 +538,93 @@ def vitesse(src, dest, ancetres) :
     route_dest=[]
     a=src
     b=dest
-    visited_src=set()
-    visited_dest=set()
-    visited_dest.add(b)
-    visited_src.add(a)
+    visited_src=[]
+    visited_dest=[]
+    visited_dest.append(b)
+    visited_src.append(a)
+    route_src.append(a)
+    route_dest.append(b)
     if a not in ancetres or b not in ancetres :
         return None
     else :
-        while b not in visited_src or a not in visited_dest : #on doit rajouter cette condition car ce n'est pas un arbre oriente
-            #donc il est possible qu'il fasse des cycles dans ses allers-retours entre noeud d'où il vient et noeud où il va
+        while all(visited_dest) not in visited_src:
+            
+        #while b not in visited_src or a not in visited_dest : #on doit rajouter cette condition car ce n'est pas un arbre oriente
+        #donc il est possible qu'il fasse des cycles dans ses allers-retours entre noeud d'où il vient et noeud où il va
             if ancetres[a] in visited_src :
                 pass
             elif ancetres[b] in visited_dest :             
                 pass
             else :
-                route_src.append(a)
-                route_dest.append(b)
-            visited_src.add(a)
-            visited_dest.add(b)
+                route_src.append(ancetres[a])
+                route_dest.append(ancetres[b])
+            visited_src.append(a)
+            visited_dest.append(b)
             a=ancetres[a]
             b=ancetres[b]
-        """
+            #print("routea :", route_src)
+            #print("routeb :",route_dest)
+            print("vA :", visited_src)
+            print("vB :", visited_dest)
+        manquants=[]
+        route_dest.reverse()
         for i in visited_dest :
             if i not in route_src+route_dest :
-                route_src.append(i)
+                manquants.append(i)
+                #route_src.append(i)
             else :
                 pass
+        
         for i in visited_src :
             if i not in route_src+route_dest :
-                route_src.append(i)
+                manquants.append(i)
             else :
                 pass
+        
+        manquants.reverse()
+
         """
+        #while route_dest[-1]!=route_src[-1]:
         for i in visited_dest :
             if i not in visited_src and i not in route_src + route_dest :
                 route_src.append(i)
         for i in visited_src :
             if i not in visited_dest and i not in route_src + route_dest :
                 route_src.append(i)
-        route_dest.reverse()
-        trajet_total = route_src + route_dest
+        """
+        #route_src=route_src[:-1]
+        trajet_total = route_src + manquants + route_dest
+        #trajet_total.pop(0)
+        #trajet_total.pop(len(trajet_total)-1)
         return trajet_total
         #sur network 10, en 7 secondes entre les noeuds : 9 et 14778. 
         #en comptant le temps de la mise en place du kruskal
         #en 8 secondes entre 1 et 10000
 
 
-
-
+def time_perf_min_power(file) :
+    
+    import time 
+    start=time.time()
+    
+    road=open(f"input/routes.{file}.in", "r")
+    g = graph_from_file(f"input/network.{file}.in")
+    gk = kruskal(g)
+    new=open(f"input/route.{file}.out", "w")
+    line_1=road.readline().split(' ')
+    nb_routes=int(line_1[0])
+    new.write(f"le nombre total de trajets est :, {nb_routes} \n")
+    for line in road :
+        list_line=line.split(" ")
+        src=int(list_line[0])
+        dest=int(list_line[1])
+        new.write(f'{gk.min_power(src, dest)[1]} \n')
+    road.close()
+    new.close()
+    end=time.time()
+    
+    duree = end - start
+    print(duree)
 
 
     """
