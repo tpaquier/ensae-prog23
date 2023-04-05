@@ -164,7 +164,7 @@ class Graph:
 
 
     def BS(self, liste, power):
-        #code de BS "de base" utilisé pour avoir une idée de comment coder le binary search de min_power
+
         haut = len(liste)-1
         bas = 0
         mid = 0
@@ -176,7 +176,7 @@ class Graph:
                 haut = mid-1
             elif liste[mid] == power:
                 return mid
-        return -1 #si on arrive la c est que l element etait po dans la liste
+        return -1
 
     def power_nodes(self, node1, node2): #fonction un peu inutile utilisée à des fins d'entraînement
         liste = self.graph[node1]
@@ -222,6 +222,7 @@ class Graph:
         debut = 1
         fin = self.max_power
         actu=self.get_path_with_power(src, dest, self.max_power)
+        print("maw power :", self.max_power)
         if actu is None or dest not in actu:
             return None, None
         #si les deux noeuds en question ne sont pas sur un graphe connexe, on retourne none car il n'y a pas de chemins possible. 
@@ -549,7 +550,7 @@ def vitesse(src, dest, ancetres) :
             #donc il est possible qu'il fasse des cycles dans ses allers-retours entre noeud d'où il vient et noeud où il va
             if ancetres[a] in visited_src :
                 pass
-            elif ancetres[b] in visited_dest :
+            elif ancetres[b] in visited_dest :             
                 pass
             else :
                 route_src.append(a)
@@ -558,6 +559,7 @@ def vitesse(src, dest, ancetres) :
             visited_dest.add(b)
             a=ancetres[a]
             b=ancetres[b]
+        """
         for i in visited_dest :
             if i not in route_src+route_dest :
                 route_src.append(i)
@@ -568,13 +570,20 @@ def vitesse(src, dest, ancetres) :
                 route_src.append(i)
             else :
                 pass
+        """
+        for i in visited_dest :
+            if i not in visited_src and i not in route_src + route_dest :
+                route_src.append(i)
+        for i in visited_src :
+            if i not in visited_dest and i not in route_src + route_dest :
+                route_src.append(i)
         route_dest.reverse()
         trajet_total = route_src + route_dest
         return trajet_total
         #sur network 10, en 7 secondes entre les noeuds : 9 et 14778. 
         #en comptant le temps de la mise en place du kruskal
         #en 8 secondes entre 1 et 10000
-        
+
 
 
 
